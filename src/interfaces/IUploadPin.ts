@@ -1,4 +1,4 @@
-import { IHashtag } from "./IHashtag";
+
 export interface IUploadPin {
   image: string;
   description: string;
