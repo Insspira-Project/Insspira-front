@@ -1,8 +1,7 @@
 // src/services/pins.services.ts (o src/services/pins.ts)
 import { api } from "@/lib/api";
-import axios, { type AxiosRequestHeaders } from "axios";
+import axios from "axios";
 import type { IPins, IComment } from "@/interfaces/IPins";
-import type { IUploadPin } from "@/interfaces/IUploadPin";
 import type { ICategory } from "@/interfaces/ICategory";
 import { IHashtag } from "@/interfaces/IHashtag";
 import Cookies from 'js-cookie';
@@ -172,17 +171,17 @@ export const uploadToCloudinary = async (
 };
 
 // Helpers sin any para leer propiedades opcionales
-function readStringKey(obj: unknown, key: string): string | undefined {
-  if (typeof obj !== "object" || obj === null) return undefined;
-  const val = (obj as Record<string, unknown>)[key];
-  return typeof val === "string" ? val : undefined;
-}
+// function readStringKey(obj: unknown, key: string): string | undefined {
+//   if (typeof obj !== "object" || obj === null) return undefined;
+//   const val = (obj as Record<string, unknown>)[key];
+//   return typeof val === "string" ? val : undefined;
+// }
 
-type UploadPayload = Pick<IUploadPin, "description"> & {
-  image?: string;
-  imageUrl?: string;
-  categoryId?: string;
-};
+// type UploadPayload = Pick<IUploadPin, "description"> & {
+//   image?: string;
+//   imageUrl?: string;
+//   categoryId?: string;
+// };
 
 // --- Crear Pin ---
 export const savePin = async (payload: {

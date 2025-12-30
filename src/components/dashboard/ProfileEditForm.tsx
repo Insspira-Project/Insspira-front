@@ -4,12 +4,16 @@
 import { useState } from "react";
 import type { UserProfile } from "@/types/ui";
 import { updateUserProfile } from "@/services/dashboard";
+import type { AxiosError } from "axios";
 
 type FormData = {
   name: string;
   username: string;
   email: string;
   bio: string;
+};
+type ErrorResponse = {
+  message?: string | string[];
 };
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
@@ -107,26 +111,25 @@ export default function ProfileEditForm({
 
       setIsDirty(false);
       onSaved?.();
-    } catch (e: any) {
-      console.error("updateUserProfile failed:", e);
-      
-      // Manejar errores del backend
-      if (e.response?.data?.message) {
-        const msg = Array.isArray(e.response.data.message)
-          ? e.response.data.message.join(", ")
-          : e.response.data.message;
-        
-        // Intentar asociar el error a un campo específico
-        if (msg.toLowerCase().includes("email")) {
-          setErrors({ email: msg });
-        } else if (msg.toLowerCase().includes("username")) {
-          setErrors({ username: msg });
-        } else {
-          alert(`Error: ${msg}`);
-        }
-      } else {
-        alert("Failed to update profile. Please try again.");
-      }
+    } catch (e: unknown) {
+  const error = e as AxiosError<ErrorResponse>;
+
+  console.error("updateUserProfile failed:", error);
+
+  if (error.response?.data?.message) {
+    const rawMsg = error.response.data.message;
+    const msg = Array.isArray(rawMsg) ? rawMsg.join(", ") : rawMsg ?? "";
+
+    if (msg.toLowerCase().includes("email")) {
+      setErrors({ email: msg });
+    } else if (msg.toLowerCase().includes("username")) {
+      setErrors({ username: msg });
+    } else {
+      alert(`Error: ${msg}`);
+    }
+  } else {
+    alert("Failed to update profile. Please try again.");
+  }
     } finally {
       setSaving(false);
     }

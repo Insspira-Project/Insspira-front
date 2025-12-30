@@ -7,6 +7,7 @@ import { getCloudinarySignature, uploadToCloudinary, getCategories, savePin } fr
 import type { ICategory } from "@/interfaces/ICategory";
 import { toast } from "react-toastify";
 import Image from "next/image";
+import type { AxiosError } from "axios";
 
 function validateFile(f: File) {
   const MAX_BYTES = 2 * 1024 * 1024; 
@@ -117,32 +118,33 @@ export default function UploadPin() {
       setPreviewUrl(null);
       setDescription("");
       setHashtagsInput("");
-    } catch (err: any) {
-      console.error('❌ Upload error:', err);
-      console.error('❌ Error response:', err.response);
-      
-      if (err.response?.status === 401) {
-        toast.error("Session expired. Please login again.");
-        localStorage.removeItem('auth:token');
-        localStorage.removeItem('auth:user');
-        window.location.href = '/login';
-      } else if (err.response?.status === 403) {
-        toast.error("You have reached your daily limit. Please subscribe.");
-      } else if (err.response?.data?.message) {
-        const msg = Array.isArray(err.response.data.message)
-          ? err.response.data.message.join(", ")
-          : err.response.data.message;
-        setError(msg);
-        toast.error(msg);
-      } else {
-        setError("Failed to upload pin. Please try again.");
-        toast.error("Failed to upload pin.");
-      }
-    } finally {
-      setUploading(false);
-    }
-  };
+    } catch (err: unknown) {
+  const error = err as AxiosError<{ message?: string | string[] }>;
 
+  console.error('❌ Upload error:', error);
+  console.error('❌ Error response:', error.response);
+  
+  if (error.response?.status === 401) {
+    toast.error("Session expired. Please login again.");
+    localStorage.removeItem('auth:token');
+    localStorage.removeItem('auth:user');
+    window.location.href = '/login';
+  } else if (error.response?.status === 403) {
+    toast.error("You have reached your daily limit. Please subscribe.");
+  } else if (error.response?.data?.message) {
+    const msg = Array.isArray(error.response.data.message)
+      ? error.response.data.message.join(", ")
+      : error.response.data.message;
+    setError(msg);
+    toast.error(msg);
+  } else {
+    setError("Failed to upload pin. Please try again.");
+    toast.error("Failed to upload pin.");
+  }
+} finally {
+  setUploading(false);
+}
+  }
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     void handleUpload();

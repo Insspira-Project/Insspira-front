@@ -41,7 +41,6 @@ type ReportType = "spam" | "violence" | "sexual" | "hate" | "other";
 const PinModal: React.FC<PinModalProps> = ({ 
   id, 
   onClose, 
-  likesState: externalLikesState, 
   setLikesState: setExternalLikesState 
 }) => {
   const [pin, setPin] = useState<PinModalType | null>(null);
@@ -114,7 +113,7 @@ const PinModal: React.FC<PinModalProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [id]); // ✅ Solo depende de 'id'
+  }, [id, setExternalLikesState]); // ✅ Solo depende de 'id'
 
   // ✅ Manejar like correctamente
   const handleLike = async () => {
@@ -186,7 +185,7 @@ const PinModal: React.FC<PinModalProps> = ({
       toast.success("Report sent successfully");
       setShowReportMenu(false);
       setReason("");
-    } catch (error) {
+    } catch  {
       toast.error("Error sending report");
     }
   };
